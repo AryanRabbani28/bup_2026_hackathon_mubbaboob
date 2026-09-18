@@ -12,7 +12,7 @@ Production submission for the **BUP CSE FEST 2026 Hackathon** — *GridWise LLM-
 | **Health Check** | `https://gridwise-backend-ds0n.onrender.com/health` | Service liveness endpoint |
 | **Interactive Docs (Swagger)** | `https://gridwise-backend-ds0n.onrender.com/docs` | In-browser API testing UI |
 | **Optimization Endpoint** | `POST https://gridwise-backend-ds0n.onrender.com/optimize-energy` | Main competition evaluation endpoint |
-| **Frontend Dashboard** | Deployed on Vercel | Single Page Application for interactive visualization |
+| **Frontend Dashboard** | [`https://gridwise-frontend.vercel.app`](https://gridwise-frontend.vercel.app) | Single Page Application for interactive visualization |
 
 ---
 
@@ -104,7 +104,7 @@ Judges can also inspect schemas and execute test cases interactively in the brow
 
 ## 🖥️ User Interaction Guide (Frontend Dashboard)
 
-For visual inspection, exploratory testing, and stakeholder review, the frontend dashboard is deployed on Vercel.
+For visual inspection, exploratory testing, and stakeholder review, the frontend dashboard is live at **[https://gridwise-frontend.vercel.app](https://gridwise-frontend.vercel.app)**.
 
 ### Key Features
 1. **Real-Time API Health Status**: Top-right status indicator shows `API Connected` in green when the Render backend is healthy and reachable.
