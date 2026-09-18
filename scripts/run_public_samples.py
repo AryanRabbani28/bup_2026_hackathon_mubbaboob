@@ -2,6 +2,7 @@ import json
 import httpx
 import sys
 import argparse
+import time
 
 def main():
     parser = argparse.ArgumentParser()
@@ -11,20 +12,22 @@ def main():
     # Load public samples
     try:
         with open("BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json", "r") as f:
-            cases = json.load(f)
+            data = json.load(f)
+            cases = data.get("cases", data)
     except FileNotFoundError:
         print("Error: Could not find BUP_CSE_FEST_2026_Preli_Public_Sample_Cases.json")
         sys.exit(1)
 
-    print(f"Running {len(cases)} public sample cases against {args.base_url}")
+    print(f"Running {len(cases)} public sample cases against {args.base_url}", flush=True)
     
     passed = 0
     failed = 0
 
     with httpx.Client(timeout=60) as client:
         for case in cases:
+            time.sleep(5)
             scenario_id = case["input"]["scenario_id"]
-            print(f"Running {scenario_id}...")
+            print(f"Running {scenario_id}...", flush=True)
             
             try:
                 response = client.post(f"{args.base_url}/optimize-energy", json=case["input"])
@@ -76,14 +79,14 @@ def main():
                     failed += 1
                     continue
                 
-                print(f"  PASS")
+                print(f"  PASS", flush=True)
                 passed += 1
 
             except Exception as e:
-                print(f"  FAIL: Request error: {e}")
+                print(f"  FAIL: Request error: {e}", flush=True)
                 failed += 1
 
-    print(f"\nSummary: {passed} passed, {failed} failed.")
+    print(f"\nSummary: {passed} passed, {failed} failed.", flush=True)
     if failed > 0:
         sys.exit(1)
 
