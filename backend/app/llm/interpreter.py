@@ -18,18 +18,20 @@ Do not invent rules, demand changes, or unsupported constraints.
 Allowed directive types:
 1. `solar_reduction`: Reduce usable solar during specific hours.
    structured_adjustment: {{"hours": [...], "factor": number}}
-   - factor is the usable fraction remaining (e.g., 80% reduction means factor = 0.2; 25% of forecast means factor = 0.25; half of forecast means factor = 0.5).
-2. `minimum_battery_reserve`: Battery energy must remain at or above a required level.
+   - factor is the usable fraction remaining (between 0.0 and 1.0).
+   - "reduced by X%" means factor = (100 - X) / 100.0 (e.g., "reduced by 80%" -> factor = 0.2).
+   - "treated as X% of forecast", "reduced to X%", or "capped at X%" means factor = X / 100.0 (e.g., "treated as 25% of forecast" -> factor = 0.25; "cap usable solar at 60 percent" -> factor = 0.6; "treated as 70% of forecast" -> factor = 0.7; "half of forecast" -> factor = 0.5).
+2. `minimum_battery_reserve`: Battery energy must remain at or above a required level during specific hours.
    structured_adjustment: {{"hours": [...], "minimum_energy_kwh": number}}
-   - If stated as an absolute kWh (e.g., "90 kWh"), use that numeric value.
+   - If stated as an absolute kWh (e.g., "90 kWh", "at or above 100 kWh"), use that numeric value.
    - If stated as a percentage of battery capacity (e.g., "50% of the battery capacity"), calculate: minimum_energy_kwh = (percentage / 100.0) * {battery_capacity_kwh}.
-3. `no_charge_window`: Battery charging is unavailable during specific hours.
+3. `no_charge_window`: Battery charging is unavailable during specific hours (e.g., "do not charge", "charging is unavailable", "charger isolated", "inspection of charging circuit").
    structured_adjustment: {{"hours": [...]}}
-4. `no_discharge_window`: Battery discharging is unavailable during specific hours.
+4. `no_discharge_window`: Battery discharging is unavailable during specific hours (e.g., "do not discharge", "discharging is unavailable", "inverter maintenance").
    structured_adjustment: {{"hours": [...]}}
-5. `max_grid_window`: Grid import/intake may not exceed a stated amount during specific hours.
+5. `max_grid_window`: Grid import/intake may not exceed a stated amount during specific hours (e.g., "grid-intake ceiling is X kWh", "grid import must not exceed X kWh", "transformer restriction limits grid import to X kWh").
    structured_adjustment: {{"hours": [...], "max_grid_kwh": number}}
-6. `no_op`: The note does not affect the current 24-hour energy schedule (e.g. sports deadlines, cafeteria menus, library book returns, club notices, room booking changes).
+6. `no_op`: The note does not affect the current 24-hour energy schedule (e.g., exam seating charts, sports registration deadlines, cafeteria menus, library book returns, club notices, room booking changes, queue-numbering procedures).
    applies: false
    structured_adjustment: null
 
@@ -39,15 +41,24 @@ Important rules:
   - "noon until 2 PM" or "12 PM to 2 PM" -> [12, 13]
   - "1 PM to 3 PM" -> [13, 14]
   - "2 AM until 5 AM" -> [2, 3, 4]
-  - "6 PM until 9 PM" -> [18, 19, 20]
+  - "midnight until 3 AM" or "12 AM to 3 AM" -> [0, 1, 2]
+  - "11 PM to midnight" or "11 PM until midnight" -> [23]
+  - "6 PM until 9 PM" or "6 PM to 9 PM" -> [18, 19, 20]
   - "6 PM until 10 PM" -> [18, 19, 20, 21]
   - "7 PM until 9 PM" -> [19, 20]
   - "7 PM until 10 PM" -> [19, 20, 21]
+  - "9 PM–10 PM" or "9 PM to 10 PM" -> [21]
   - "10 AM until noon" -> [10, 11]
   - "11 AM until 1 PM" -> [11, 12]
   - "11 AM until 2 PM" -> [11, 12, 13]
   - "2 PM until 4 PM" -> [14, 15]
   - "5 PM until 7 PM" -> [17, 18]
+  - "between 14:00 and 17:00" -> [14, 15, 16]
+  - "between 10:00 and 14:00" -> [10, 11, 12, 13]
+  - "between 16:00 and 19:00" -> [16, 17, 18]
+  - "hour 10 up to but not including hour 13" -> [10, 11, 12]
+  - "hour 20 up to but not including hour 22" -> [20, 21]
+  - "from hour 16 up to but not including hour 19" -> [16, 17, 18]
 - Hours must be unique integers between 0 and 23, sorted in strictly ascending order.
 - For `no_op`: applies MUST be false, directive_type MUST be "no_op", and structured_adjustment MUST be null.
 - For all other directives: applies MUST be true, and structured_adjustment MUST match the required shape.

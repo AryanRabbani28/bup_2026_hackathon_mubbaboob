@@ -8,3 +8,9 @@ __pycache__/
 node_modules/
 dist/
 .DS_Store
+*.pdf
+MASTER_BUILD_PROMPT.md
+*Stress_Test*
+backend/tests/test_stress_pack.py
+scripts/run_stress_test_pack.py
+

@@ -8,9 +8,16 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     Handle Pydantic validation errors securely, avoiding internal leakage,
     returning a 400 response as per contract.
     """
+    safe_errors = []
+    for err in exc.errors():
+        safe_errors.append({
+            "loc": [str(x) for x in err.get("loc", [])],
+            "msg": str(err.get("msg", "")),
+            "type": str(err.get("type", ""))
+        })
     return JSONResponse(
         status_code=400,
-        content={"detail": "Malformed JSON or structurally invalid request.", "errors": exc.errors()}
+        content={"detail": "Malformed JSON or structurally invalid request.", "errors": safe_errors}
     )
 
 async def generic_exception_handler(request: Request, exc: Exception):

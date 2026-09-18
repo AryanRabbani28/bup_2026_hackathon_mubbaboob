@@ -42,7 +42,9 @@ def validate_directives(
             raise DirectiveValidationError(f"structured_adjustment must contain 'hours' list. Note index: {interp.note_index}")
         
         hours = adj["hours"]
-        if not all(isinstance(h, int) and 0 <= h <= 23 for h in hours):
+        if len(hours) == 0:
+            raise DirectiveValidationError(f"hours list cannot be empty. Note index: {interp.note_index}")
+        if not all(isinstance(h, int) and not isinstance(h, bool) and 0 <= h <= 23 for h in hours):
             raise DirectiveValidationError(f"hours must be integers from 0 to 23. Note index: {interp.note_index}")
         
         if sorted(list(set(hours))) != hours:
@@ -50,24 +52,31 @@ def validate_directives(
 
         # Directive specific rules
         if interp.directive_type == "solar_reduction":
-            if "factor" not in adj or not isinstance(adj["factor"], (int, float)):
+            if set(adj.keys()) != {"hours", "factor"}:
+                raise DirectiveValidationError(f"solar_reduction structured_adjustment must only contain 'hours' and 'factor'. Note index: {interp.note_index}")
+            if not isinstance(adj["factor"], (int, float)) or isinstance(adj["factor"], bool):
                 raise DirectiveValidationError(f"solar_reduction requires 'factor' number. Note index: {interp.note_index}")
             if not (0.0 <= adj["factor"] <= 1.0):
                 raise DirectiveValidationError(f"solar_reduction factor must be between 0 and 1. Note index: {interp.note_index}")
 
         elif interp.directive_type == "minimum_battery_reserve":
-            if "minimum_energy_kwh" not in adj or not isinstance(adj["minimum_energy_kwh"], (int, float)):
+            if set(adj.keys()) != {"hours", "minimum_energy_kwh"}:
+                raise DirectiveValidationError(f"minimum_battery_reserve structured_adjustment must only contain 'hours' and 'minimum_energy_kwh'. Note index: {interp.note_index}")
+            if not isinstance(adj["minimum_energy_kwh"], (int, float)) or isinstance(adj["minimum_energy_kwh"], bool):
                 raise DirectiveValidationError(f"minimum_battery_reserve requires 'minimum_energy_kwh' number. Note index: {interp.note_index}")
             if adj["minimum_energy_kwh"] < 0 or adj["minimum_energy_kwh"] > battery_capacity:
                 raise DirectiveValidationError(f"minimum_energy_kwh must be >= 0 and <= capacity. Note index: {interp.note_index}")
 
         elif interp.directive_type == "max_grid_window":
-            if "max_grid_kwh" not in adj or not isinstance(adj["max_grid_kwh"], (int, float)):
+            if set(adj.keys()) != {"hours", "max_grid_kwh"}:
+                raise DirectiveValidationError(f"max_grid_window structured_adjustment must only contain 'hours' and 'max_grid_kwh'. Note index: {interp.note_index}")
+            if not isinstance(adj["max_grid_kwh"], (int, float)) or isinstance(adj["max_grid_kwh"], bool):
                 raise DirectiveValidationError(f"max_grid_window requires 'max_grid_kwh' number. Note index: {interp.note_index}")
             if adj["max_grid_kwh"] < 0:
                 raise DirectiveValidationError(f"max_grid_kwh must be non-negative. Note index: {interp.note_index}")
         
         elif interp.directive_type in ["no_charge_window", "no_discharge_window"]:
-            pass # Only hours are required, already checked
+            if set(adj.keys()) != {"hours"}:
+                raise DirectiveValidationError(f"{interp.directive_type} structured_adjustment must only contain 'hours'. Note index: {interp.note_index}")
         
     return interpretations

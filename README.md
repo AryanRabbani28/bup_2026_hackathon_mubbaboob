@@ -39,7 +39,9 @@ Create a `.env` file in the `backend` directory (copy from `.env.example`):
 ```bash
 cp .env.example .env
 ```
-Edit `.env` to include your `GEMINI_API_KEY`.
+Edit `.env` to include your `GEMINI_API_KEY` (supports both plain text or base64-encoded keys).
+
+
 
 4. **Run the server:**
 ```bash
@@ -66,6 +68,7 @@ This script evaluates the 10 provided public samples against your local API inst
 cd ..
 python scripts/run_public_samples.py --base-url http://localhost:8000
 ```
+
 
 ### Curl Examples
 
